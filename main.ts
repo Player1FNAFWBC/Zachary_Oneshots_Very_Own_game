@@ -1094,9 +1094,27 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
         music.play(music.melodyPlayable(music.knock), music.PlaybackMode.UntilDone)
         animateJumps()
     }
-    if (controller.down.isPressed()) {
+    if (controller.down.isPressed() && (zachisholdingshotgun && zachisgolden) == false) {
         animation.stopAnimation(animation.AnimationTypes.All, hero)
         animateJumps()
+        hero.vy += -150
+        pauseUntil(() => hero.isHittingTile(CollisionDirection.Bottom))
+    }
+    if (controller.down.isPressed() && (zachisholdingshotgun == true && zachisgolden) == false) {
+        animation.stopAnimation(animation.AnimationTypes.All, hero)
+        animateSHOTGUNJUMP()
+        hero.vy += -150
+        pauseUntil(() => hero.isHittingTile(CollisionDirection.Bottom))
+    }
+    if (controller.down.isPressed() && (zachisholdingshotgun == false && zachisgolden) == true) {
+        animation.stopAnimation(animation.AnimationTypes.All, hero)
+        animatepower()
+        hero.vy += -200
+        pauseUntil(() => hero.isHittingTile(CollisionDirection.Bottom))
+    }
+    if (controller.down.isPressed() && (zachisholdingshotgun == true && zachisgolden) == true) {
+        animation.stopAnimation(animation.AnimationTypes.All, hero)
+        animateGOLDGUNJUMP()
         hero.vy += -200
         pauseUntil(() => hero.isHittingTile(CollisionDirection.Bottom))
     }
@@ -1143,6 +1161,11 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
         hero.vy += -200
         pause(100)
         animatepower()
+    }
+    if (zachisgolden == false && zachisholdingshotgun == true) {
+        animateSHOTGUNJUMP()
+        attemptJump()
+        pauseUntil(() => hero.isHittingTile(CollisionDirection.Bottom))
     }
 })
 function animateGDASH () {
@@ -1748,14 +1771,14 @@ controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
         for (let index = 0; index < 2; index++) {
             FUCKINGBULLET = sprites.createProjectileFromSprite(assets.image`FUCKINGBULLETV2DOWN`, hero, 0, 1000)
             FUCKINGBULLET.setKind(SpriteKind.Bullet)
-            pause(250)
+            pause(25)
         }
     }
     if (zachisholdingshotgun == true && zachisgolden == true) {
         for (let index = 0; index < 6; index++) {
             FUCKINGBULLET = sprites.createProjectileFromSprite(assets.image`FUCKINGBULLETV2DOWN0`, hero, 0, 1000)
             FUCKINGBULLET.setKind(SpriteKind.Bullet)
-            pause(250)
+            pause(2)
         }
     }
 })
