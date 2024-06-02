@@ -28,6 +28,8 @@ namespace SpriteKind {
     export const Moving_Target = SpriteKind.create()
     export const NotZach = SpriteKind.create()
     export const rustbullet = SpriteKind.create()
+    export const Alex = SpriteKind.create()
+    export const A = SpriteKind.create()
 }
 sprites.onOverlap(SpriteKind.Player, SpriteKind.FLYINGSQUARE, function (sprite, otherSprite) {
     info.changeLifeBy(-1)
@@ -127,7 +129,7 @@ function giveIntroduction () {
     showInstruction("Press down to crouch. Jump while crouching to Super Jump.")
     showInstruction("Squares are bad. Jump or Dash through them to kill them.")
     showInstruction("Touch the flag to end a level.")
-    showInstruction("Collect coins to get score, get 100 score....")
+    showInstruction("Collect coins to get score, get 200 score....")
     showInstruction("Well, press A to find out.")
     showInstruction("DM Player for context of the game LMAO")
 }
@@ -220,6 +222,7 @@ scene.onHitWall(SpriteKind.Player, function (sprite, location) {
                 AMMOBAR.max = 100
                 AMMOBAR.value = sprites.readDataNumber(hero, "Ammo")
                 AMMOBAR.attachToSprite(hero)
+                AMMOBAR.setColor(5, 4)
             }
         } else if (zachisgolden == true) {
             tiles.setWallAt(location, false)
@@ -231,10 +234,12 @@ scene.onHitWall(SpriteKind.Player, function (sprite, location) {
                 showInstruction("Ugh, fine. Press Enter/B to shoot.")
                 showInstruction("Spam E, Enter, and X to Fire really, really fast.")
                 hero.sayText("bet.", 1000, false)
-                showInstruction("To make you not God-like, your score will be used to-")
+                showInstruction("To make you not God-like, you need to make sure you-")
                 showInstruction("-fill the shotgun with Ammo.")
                 hero.sayText("bruh", 1000, false)
+                sprites.setDataNumber(hero, "Ammo", 100)
                 initializeGOLDGUNanimations()
+                createshotgunbar()
             }
         }
     }
@@ -254,7 +259,7 @@ scene.onHitWall(SpriteKind.Player, function (sprite, location) {
     if (tiles.tileAtLocationEquals(location, assets.tile`INFINITEammo`)) {
         if (zachisholdingshotgun == true) {
             sprites.setDataNumber(hero, "Ammo", 999)
-            AMMOBAR.setLabel("INFINITE AMMO")
+            AMMOBAR.value = 100
             tiles.setTileAt(location, assets.tile`transparency16`)
             tiles.setWallAt(location, false)
         } else {
@@ -277,6 +282,9 @@ scene.onHitWall(SpriteKind.Player, function (sprite, location) {
         tiles.setCurrentTilemap(tilemap`level 2`)
         tiles.placeOnTile(hero, tiles.getTileLocation(37, 68))
         music.play(music.createSong(assets.song`GRAND DAD`), music.PlaybackMode.LoopingInBackground)
+    }
+    if (tiles.tileAtLocationEquals(location, assets.tile`portal0`)) {
+        tiles.placeOnTile(hero, tiles.getTileLocation(22, 64))
     }
     if (hero.tileKindAt(TileDirection.Top, assets.tile`suggestionblock2`)) {
         showInstruction("Combine your Super-Jump, Double jump and-")
@@ -350,6 +358,61 @@ scene.onHitWall(SpriteKind.Player, function (sprite, location) {
         showInstruction("Only in this room!")
         showInstruction("It turns you into Golden Zach.")
     }
+    if (hero.tileKindAt(TileDirection.Top, assets.tile`level8`)) {
+        clearGame()
+        game.splash("warping to level 1!")
+        setLevelTileMap(0)
+        refreshshotgunbar()
+    }
+    if (hero.tileKindAt(TileDirection.Top, assets.tile`level1chase`)) {
+        clearGame()
+        game.splash("warping to level 1's chase!")
+        setLevelTileMap(1)
+        refreshshotgunbar()
+    }
+    if (hero.tileKindAt(TileDirection.Top, assets.tile`level0`)) {
+        clearGame()
+        game.splash("warping to level 2!")
+        setLevelTileMap(2)
+        refreshshotgunbar()
+    }
+    if (hero.tileKindAt(TileDirection.Top, assets.tile`level2chase`)) {
+        clearGame()
+        game.splash("warping to level 2's chase!")
+        setLevelTileMap(3)
+        refreshshotgunbar()
+    }
+    if (hero.tileKindAt(TileDirection.Top, assets.tile`level3`)) {
+        clearGame()
+        game.splash("warping to level 3!")
+        setLevelTileMap(4)
+        refreshshotgunbar()
+    }
+    if (hero.tileKindAt(TileDirection.Top, assets.tile`level3chase0`)) {
+        clearGame()
+        game.splash("warping to level 3's chase!")
+        setLevelTileMap(5)
+        refreshshotgunbar()
+    }
+    if (hero.tileKindAt(TileDirection.Top, assets.tile`level4`)) {
+        clearGame()
+        game.splash("warping to level 4!")
+        setLevelTileMap(6)
+        refreshshotgunbar()
+    }
+    if (hero.tileKindAt(TileDirection.Top, assets.tile`level4chase`)) {
+        clearGame()
+        game.splash("warping to level 4's chase!")
+        setLevelTileMap(7)
+        refreshshotgunbar()
+        zachisholdingshotgun = false && zachisgolden == false
+    }
+    if (hero.tileKindAt(TileDirection.Top, assets.tile`level5`)) {
+        clearGame()
+        game.splash("Warping to the end.")
+        setLevelTileMap(8)
+        initializeHeroAnimations()
+    }
     if (hero.tileKindAt(TileDirection.Top, assets.tile`GOLD`)) {
         if (zachisgolden == false) {
             hero.sayText("It's Morbing time.", 2000, false)
@@ -366,9 +429,16 @@ scene.onHitWall(SpriteKind.Player, function (sprite, location) {
             }
         }
     }
-    if (hero.tileKindAt(TileDirection.Bottom, assets.tile`LAVA`)) {
+    if (hero.tileKindAt(TileDirection.Bottom, assets.tile`LAVA`) || (hero.tileKindAt(TileDirection.Bottom, assets.tile`LAVADIAGONAL`) || (hero.tileKindAt(TileDirection.Bottom, assets.tile`LAVA1`) || hero.tileKindAt(TileDirection.Bottom, assets.tile`LAVADIAGONAL0`)))) {
         info.changeLifeBy(-1)
-        hero.y += -100
+        hero.y += -30
+        hero.vy = -120
+        hero.sayText("OW MY ASS!", 500, false)
+    }
+    if (hero.tileKindAt(TileDirection.Bottom, assets.tile`LAVADIAGONAL1`) || (hero.tileKindAt(TileDirection.Bottom, assets.tile`LAVADIAGONAL2`) || (hero.tileKindAt(TileDirection.Bottom, assets.tile`LOWLAVA`) || hero.tileKindAt(TileDirection.Bottom, assets.tile`LAVABLOCK-FILLED`)))) {
+        info.changeLifeBy(-1)
+        hero.y += -30
+        hero.vy = -120
         hero.sayText("OW MY ASS!", 500, false)
     }
     if (hero.tileKindAt(TileDirection.Left, assets.tile`dirt0`)) {
@@ -377,6 +447,23 @@ scene.onHitWall(SpriteKind.Player, function (sprite, location) {
         tiles.setWallAt(tiles.getTileLocation(27, 13), false)
         music.stopAllSounds()
         music.play(music.createSong(assets.song`CAVE`), music.PlaybackMode.LoopingInBackground)
+    }
+    if (hero.tileKindAt(TileDirection.Right, assets.tile`THE END`)) {
+        controller.moveSprite(hero, 0, 0)
+        scene.cameraFollowSprite(A)
+        showInstruction("A:\"Zach! Glad you could make it!\"")
+        scene.cameraFollowSprite(hero)
+        showInstruction("Zach:\"Heya- It was quite a struggle getting here...\"")
+        scene.cameraFollowSprite(A)
+        showInstruction("A: \"Well, at least you're not dead.\"")
+        scene.cameraFollowSprite(hero)
+        showInstruction("Zach: \"True that.\"")
+        scene.cameraFollowSprite(A)
+        showInstruction("A: \"Well, that's the end. Thanks for Playing!\"")
+        showInstruction("Zach: \"WHO THE FUCK ARE YOU TALKING TO-\"")
+        music.play(music.createSong(assets.song`ending_theme`), music.PlaybackMode.UntilDone)
+        game.setGameOverMessage(true, "The End!")
+        game.gameOver(true)
     }
     if (hero.tileKindAt(TileDirection.Bottom, assets.tile`tile2`)) {
         scene.setBackgroundImage(img`
@@ -659,6 +746,14 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Coin, function (sprite, otherSpr
     info.changeScoreBy(1)
     music.baDing.play()
 })
+scene.onOverlapTile(SpriteKind.Player, assets.tile`RIFT`, function (sprite, location) {
+    info.changeLifeBy(1)
+    currentLevel = 8
+    game.splash("Next Level Unlocked!")
+    setLevelTileMap(8)
+    zachisholdingshotgun = false
+    initializeHeroAnimations()
+})
 function attemptJump () {
     // else if: either fell off a ledge, or double jumping
     if (hero.isHittingTile(CollisionDirection.Bottom)) {
@@ -675,6 +770,15 @@ function attemptJump () {
         canDoubleJump = false
     }
 }
+controller.combos.attachCombo("uubb", function () {
+    if (debugmodeON == true) {
+        game.splash("Next level unlocked!")
+        setLevelTileMap(-1)
+        if (zachisholdingshotgun) {
+            refreshshotgunbar()
+        }
+    }
+})
 sprites.onOverlap(SpriteKind.Bullet, SpriteKind.KingSquare, function (sprite, otherSprite) {
     statusbar.value += -1
     sprites.changeDataNumberBy(otherSprite, "HP", -1)
@@ -724,9 +828,6 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
         hero.vx = 0
         pause(300)
     }
-    if (controller.up.isPressed() && controller.down.isPressed()) {
-        info.setScore(100)
-    }
     if (zachisholdingshotgun == true) {
         if (sprites.readDataNumber(hero, "Ammo") > 0) {
             ShotgunInput()
@@ -772,6 +873,59 @@ function animateIdle () {
     animation.attachAnimation(hero, mainIdleRight)
     mainIdleRight.addAnimationFrame(assets.image`zachfacingright0`)
 }
+sprites.onOverlap(SpriteKind.GOLDENBullet, SpriteKind.NotZach, function (sprite, otherSprite) {
+    statusbar.value += -4
+    sprites.changeDataNumberBy(otherSprite, "HP", -2)
+    sprites.destroy(sprite)
+    if (Math.percentChance(10)) {
+        info.changeScoreBy(1)
+        info.changeLifeBy(1)
+    }
+    hero.sayText("BOSS HP =" + statusbar.value, 2000, false)
+    music.play(music.melodyPlayable(music.zapped), music.PlaybackMode.InBackground)
+    scene.cameraShake(4, 500)
+    if (sprites.readDataNumber(otherSprite, "HP") == 0) {
+        tiles.placeOnTile(otherSprite, tiles.getTileLocation(47, 35))
+        tiles.placeOnTile(hero, tiles.getTileLocation(52, 35))
+        controller.moveSprite(hero, 0, 0)
+        otherSprite.setBounceOnWall(false)
+        scene.cameraFollowSprite(otherSprite)
+        otherSprite.vx = 0
+        otherSprite.vy = 0
+        for (let index = 0; index < 1; index++) {
+            otherSprite.setImage(assets.image`yourselfsing-31`)
+            pause(200)
+        }
+        for (let index = 0; index < 1; index++) {
+            otherSprite.setImage(assets.image`yourselfsing-30`)
+            pause(200)
+        }
+        for (let index = 0; index < 1; index++) {
+            otherSprite.setImage(assets.image`yourselfsing-33`)
+            pause(200)
+        }
+        for (let index = 0; index < 1; index++) {
+            otherSprite.setImage(assets.image`yourselfsing-32`)
+            pause(200)
+        }
+        for (let index = 0; index < 1; index++) {
+            otherSprite.setImage(assets.image`yourselfsing-34`)
+            pause(200)
+        }
+        sprites.destroy(otherSprite)
+        scene.cameraFollowSprite(hero)
+        scene.cameraShake(4, 1000)
+        info.changeScoreBy(25)
+        tiles.placeOnRandomTile(hero, assets.tile`you0`)
+        hero.y += -75
+        if (zachisgolden == false) {
+            controller.moveSprite(hero, 110, 0)
+        }
+        if (zachisgolden == true) {
+            controller.moveSprite(hero, 210, 0)
+        }
+    }
+})
 function setLevelTileMap (level: number) {
     clearGame()
     if (level == 0) {
@@ -809,27 +963,47 @@ function setLevelTileMap (level: number) {
         tiles.setTilemap(tilemap`level_5`)
         music.play(music.createSong(assets.song`NO-PARTY`), music.PlaybackMode.LoopingInBackground)
     } else if (level == 7) {
-        tiles.setTilemap(tilemap`level_6`)
-    } else if (level == 999) {
-        tiles.setCurrentTilemap(tilemap`level999`)
         music.stopAllSounds()
-        music.play(music.createSong(assets.song`HIDDEN-WAVE`), music.PlaybackMode.LoopingInBackground)
+        music.play(music.createSong(assets.song`DEMISE`), music.PlaybackMode.LoopingInBackground)
+        tiles.setTilemap(tilemap`level_5chase`)
+        info.startCountdown(120)
+    } else if (level == 8) {
+        music.stopAllSounds()
+        info.stopCountdown()
+        zachisholdingshotgun = false
+        zachisgolden = false
+        AMMOBAR.setBarSize(0, 0)
+        AMMOBAR.setLabel(" ")
+        initializeHeroAnimations()
+        scene.setBackgroundImage(assets.image`house`)
+        tiles.setCurrentTilemap(tilemap`level42`)
     } else if (level == 1000) {
-        tiles.setCurrentTilemap(tilemap`level33`)
+        tiles.setCurrentTilemap(tilemap`levellevelselect`)
         music.play(music.createSong(assets.song`ending_theme`), music.PlaybackMode.LoopingInBackground)
         showInstruction("You killed the creator, so the game ends.")
         showInstruction("This is where you will remain now.")
         showInstruction("ENDING: ENDLESS ENCAGEMENT")
         game.setGameOverMessage(true, "THE END")
         game.gameOver(true)
+    } else if (level == -1) {
+        scene.setBackgroundImage(assets.image`house`)
+        tiles.setCurrentTilemap(tilemap`levellevelselect`)
     }
     initializeLevel(level)
 }
 controller.combos.attachCombo("ududlrlrbaa", function () {
+    music.play(music.melodyPlayable(music.magicWand), music.PlaybackMode.InBackground)
     zachisgolden = true
     zachisholdingshotgun = true
+    sprites.setDataNumber(hero, "Ammo", 999)
+    info.setLife(999)
     initializeGOLDGUNanimations()
+    createshotgunbar()
     controller.moveSprite(hero, 210, 0)
+    showInstruction("debug mode activated.")
+    showInstruction("You can now access any level through an input.")
+    showInstruction("press Up-Up-B-B to go to the Level Select room.")
+    debugmodeON = true
 })
 controller.combos.attachCombo("lrdu", function () {
     for (let index = 0; index < 10; index++) {
@@ -914,9 +1088,11 @@ function initializeFlierAnimations () {
         `)
 }
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
-    if (info.life() < 50) {
+    if (zachisgolden == false && zachisholdingshotgun == false) {
         attemptJump()
+        animateJumps()
         music.play(music.melodyPlayable(music.knock), music.PlaybackMode.UntilDone)
+        animateJumps()
     }
     if (controller.down.isPressed()) {
         animation.stopAnimation(animation.AnimationTypes.All, hero)
@@ -938,7 +1114,7 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
         info.setLife(100)
         info.setScore(0)
         controller.moveSprite(hero, 210, 0)
-    } else if (zachisholdingshotgun == true && info.score() > 99) {
+    } else if (zachisholdingshotgun == true && info.score() > 199) {
         animateGOLDGUNJUMP()
         zachisgolden = true
         showInstruction("Are you not strong enough as is?!")
@@ -985,8 +1161,8 @@ function animateGDASH () {
     }
 }
 sprites.onOverlap(SpriteKind.GOLDENBullet, SpriteKind.Mage, function (sprite, otherSprite) {
-    statusbar.value += -5
-    sprites.changeDataNumberBy(otherSprite, "HP", -5)
+    statusbar.value += -2
+    sprites.changeDataNumberBy(otherSprite, "HP", -2)
     sprites.destroy(sprite)
     if (Math.percentChance(15)) {
         info.changeScoreBy(1)
@@ -1000,6 +1176,7 @@ sprites.onOverlap(SpriteKind.GOLDENBullet, SpriteKind.Mage, function (sprite, ot
         hero.sayText("Man those fireballs were annoying", 5000, false)
         info.changeScoreBy(15)
         tiles.placeOnRandomTile(hero, assets.tile`myTile2`)
+        sprites.destroyAllSpritesOfKind(SpriteKind.Fireball)
     }
 })
 function animateRun () {
@@ -1102,42 +1279,6 @@ function animateCrouch () {
     animation.attachAnimation(hero, mainCrouchRight)
     mainCrouchRight.addAnimationFrame(assets.image`zachcrouchright`)
 }
-function NoAmmoLeft () {
-    if (zachisholdingshotgun && heroFacingLeft == false && zachisgolden == false) {
-        animateBANGBANG()
-        for (let index = 0; index < 1; index++) {
-            FUCKINGBULLET = sprites.createProjectileFromSprite(assets.image`FUCKINGBULLET1`, hero, 500, 0)
-            FUCKINGBULLET.setKind(SpriteKind.Bullet)
-            pause(1)
-        }
-        pause(1)
-    } else if (zachisholdingshotgun && heroFacingLeft == true && zachisgolden == false) {
-        animateBANGBANG()
-        for (let index = 0; index < 1; index++) {
-            FUCKINGBULLET = sprites.createProjectileFromSprite(assets.image`FUCKINGBULLETV2LEFT`, hero, -500, 0)
-            FUCKINGBULLET.setKind(SpriteKind.Bullet)
-            pause(1)
-        }
-        pause(1)
-    }
-    if (zachisholdingshotgun && heroFacingLeft == false && zachisgolden == true) {
-        animateGOLDBANG()
-        for (let index = 0; index < 5; index++) {
-            FUCKINGBULLET = sprites.createProjectileFromSprite(assets.image`FUCKINGBULLET0`, hero, 500, 0)
-            FUCKINGBULLET.setKind(SpriteKind.GOLDENBullet)
-            pause(0.5)
-        }
-        pause(0.5)
-    } else if (zachisholdingshotgun && heroFacingLeft == true && zachisgolden == true) {
-        animateGOLDBANG()
-        for (let index = 0; index < 5; index++) {
-            FUCKINGBULLET = sprites.createProjectileFromSprite(assets.image`FUCKINGBULLETV2LEFT0`, hero, -500, 0)
-            FUCKINGBULLET.setKind(SpriteKind.GOLDENBullet)
-            pause(0.5)
-        }
-        pause(0.5)
-    }
-}
 scene.onHitWall(SpriteKind.Flier, function (sprite, location) {
     if (tiles.tileAtLocationIsWall(location)) {
         tiles.setWallAt(location, false)
@@ -1147,8 +1288,8 @@ scene.onHitWall(SpriteKind.Flier, function (sprite, location) {
     }
 })
 sprites.onOverlap(SpriteKind.GOLDENBullet, SpriteKind.KingSquare, function (sprite, otherSprite) {
-    statusbar.value += -10
-    sprites.changeDataNumberBy(otherSprite, "HP", -10)
+    statusbar.value += -2
+    sprites.changeDataNumberBy(otherSprite, "HP", -2)
     sprites.destroy(sprite)
     if (sprites.readDataNumber(otherSprite, "HP") == statusbar.max - 10) {
         kingsquare.follow(hero, 2.5)
@@ -1190,6 +1331,7 @@ function clearGame () {
     }
 }
 sprites.onOverlap(SpriteKind.Fireball, SpriteKind.Player, function (sprite, otherSprite) {
+    sprites.destroyAllSpritesOfKind(SpriteKind.Fireball)
     info.changeLifeBy(-1)
     hero.sayText("IT BURNS!!!")
     pause(invincibilityPeriod)
@@ -1212,6 +1354,7 @@ function createshotgunbar () {
         AMMOBAR.max = 100
         AMMOBAR.value = sprites.readDataNumber(hero, "Ammo")
         AMMOBAR.attachToSprite(hero)
+        AMMOBAR.setColor(5, 4)
     }
 }
 function animategoldidle () {
@@ -1475,27 +1618,38 @@ function createEnemies () {
         yourself = sprites.create(assets.image`yourselfleft`, SpriteKind.NotZach)
         tiles.placeOnTile(yourself, value14)
         tiles.setTileAt(value14, assets.tile`tile0`)
-        yourself.setBounceOnWall(true)
         yourself.ay = gravity
+        yourself.vx = 150
         sprites.setDataNumber(yourself, "HP", 50)
+        yourself.setFlag(SpriteFlag.BounceOnWall, true)
         yourselfhp = statusbars.create(20, 4, StatusBarKind.Health)
-        yourselfhp.max = 100
         yourselfhp.attachToSprite(yourself)
+        yourselfhp.max = 100
         yourselfhp.value = 100
         yourselfhp.setColor(2, 7, 9)
+        statusbar.setStatusBarFlag(StatusBarFlag.SmoothTransition, false)
         yourselfhp.setLabel("YOUR HP")
-        if (Math.percentChance(50)) {
-            yourself.vx = Math.randomRange(100, 150)
-        } else {
-            yourself.vx = Math.randomRange(-100, -150)
+    }
+    // enemy that flies at player
+    for (let value15 of tiles.getTilesByType(assets.tile`you0`)) {
+        if (sprites.readDataNumber(yourself, "HP") == 0) {
+            tiles.setTileAt(value15, assets.tile`transparency16`)
+            tiles.setWallAt(value15, false)
         }
-        if (Math.percentChance(50)) {
-            rustbullet = sprites.createProjectileFromSprite(assets.image`YOURSELF_BULLET`, yourself, -150, 0)
-            rustbullet.setKind(SpriteKind.rustbullet)
-        } else {
-            rustbullet = sprites.createProjectileFromSprite(assets.image`FUCKINGBULLET2`, yourself, -150, 0)
-            rustbullet.setKind(SpriteKind.rustbullet)
-        }
+    }
+    // enemy that flies at player
+    for (let value16 of tiles.getTilesByType(assets.tile`Alex`)) {
+        Alex = sprites.create(assets.image`zachfacingleft0`, SpriteKind.Alex)
+        Alex.scale = 1
+        tiles.placeOnTile(Alex, value16)
+        tiles.setTileAt(value16, assets.tile`tile0`)
+    }
+    // enemy that flies at player
+    for (let value17 of tiles.getTilesByType(assets.tile`A`)) {
+        A = sprites.create(assets.image`A`, SpriteKind.A)
+        A.scale = 1
+        tiles.placeOnTile(A, value17)
+        tiles.setTileAt(value17, assets.tile`tile0`)
     }
 }
 function animateBANGBANG () {
@@ -1589,6 +1743,20 @@ controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
         music.play(music.melodyPlayable(music.jumpDown), music.PlaybackMode.UntilDone)
     } else if (controller.A.isPressed()) {
         attemptJump()
+    }
+    if (zachisholdingshotgun == true && zachisgolden == false) {
+        for (let index = 0; index < 2; index++) {
+            FUCKINGBULLET = sprites.createProjectileFromSprite(assets.image`FUCKINGBULLETV2DOWN`, hero, 0, 1000)
+            FUCKINGBULLET.setKind(SpriteKind.Bullet)
+            pause(250)
+        }
+    }
+    if (zachisholdingshotgun == true && zachisgolden == true) {
+        for (let index = 0; index < 6; index++) {
+            FUCKINGBULLET = sprites.createProjectileFromSprite(assets.image`FUCKINGBULLETV2DOWN0`, hero, 0, 1000)
+            FUCKINGBULLET.setKind(SpriteKind.Bullet)
+            pause(250)
+        }
     }
 })
 function animatePlayerBossWalk () {
@@ -1707,6 +1875,7 @@ sprites.onOverlap(SpriteKind.Bullet, SpriteKind.Mage, function (sprite, otherSpr
         hero.sayText("Psh- Easy!", 5000, false)
         info.changeScoreBy(15)
         tiles.placeOnRandomTile(hero, assets.tile`myTile2`)
+        sprites.destroyAllSpritesOfKind(SpriteKind.Fireball)
     }
 })
 function createPlayer (player2: Sprite) {
@@ -1717,6 +1886,10 @@ function createPlayer (player2: Sprite) {
     info.setLife(3)
     info.setScore(0)
 }
+sprites.onOverlap(SpriteKind.GOLDENBullet, SpriteKind.Moving_Target, function (sprite, otherSprite) {
+    sprites.destroy(otherSprite)
+    tiles.placeOnTile(hero, tiles.getTileLocation(21, 43))
+})
 scene.onHitWall(SpriteKind.Mage, function (sprite, location) {
     if (rizzard.isHittingTile(CollisionDirection.Bottom)) {
         heads = sprites.createProjectileFromSide(assets.image`fireball`, 150, randint(10, 100))
@@ -1743,30 +1916,49 @@ sprites.onOverlap(SpriteKind.Bullet, SpriteKind.NotZach, function (sprite, other
         info.changeScoreBy(1)
         info.changeLifeBy(1)
     }
-    hero.sayText("BOSS HP =" + statusbar.value, 2000, false)
+    hero.sayText("BOSS HP =" + (statusbar.value - 50), 2000, false)
     music.play(music.melodyPlayable(music.zapped), music.PlaybackMode.InBackground)
     scene.cameraShake(4, 500)
     if (sprites.readDataNumber(otherSprite, "HP") == 0) {
+        tiles.placeOnTile(otherSprite, tiles.getTileLocation(47, 35))
+        tiles.placeOnTile(hero, tiles.getTileLocation(52, 35))
+        controller.moveSprite(hero, 0, 0)
+        otherSprite.setBounceOnWall(false)
         scene.cameraFollowSprite(otherSprite)
-        otherSprite.sayText("I'LL", 500, false)
-        otherSprite.sayText("MAAAAAAAAAAAAKEEEEEEEEEEE", 2500, false)
-        otherSprite.sayText("YOU", 750, false)
-        otherSprite.sayText("SAAAAAAAAAYYYYYY", 2250, false)
-        otherSprite.sayText("HOW", 750, false)
-        otherSprite.sayText("PROUD", 2000, false)
-        otherSprite.sayText("YOUUU", 1000, false)
-        otherSprite.sayText("ARE", 500, false)
-        otherSprite.sayText("OF", 500, false)
-        otherSprite.sayText("ME....", 1000, false)
-        otherSprite.sayText("SO STAAAAAAAAAAAAAAAYYYYYYYY", 3000, false)
-        otherSprite.sayText("AWAAAAAAAKEE", 3000, false)
-        otherSprite.sayText("JUST", 500, false)
-        otherSprite.sayText("LOOOOOOOOOONG", 2500, false)
-        otherSprite.sayText("ENOUGH TO SEE....", 2000, false)
-        otherSprite.sayText("MY WAY", 5000, false)
-        scene.cameraShake(4, 1000)
-        info.changeScoreBy(15)
+        otherSprite.vx = 0
+        otherSprite.vy = 0
+        for (let index = 0; index < 1; index++) {
+            otherSprite.setImage(assets.image`yourselfsing-31`)
+            pause(200)
+        }
+        for (let index = 0; index < 1; index++) {
+            otherSprite.setImage(assets.image`yourselfsing-30`)
+            pause(200)
+        }
+        for (let index = 0; index < 1; index++) {
+            otherSprite.setImage(assets.image`yourselfsing-33`)
+            pause(200)
+        }
+        for (let index = 0; index < 1; index++) {
+            otherSprite.setImage(assets.image`yourselfsing-32`)
+            pause(200)
+        }
+        for (let index = 0; index < 1; index++) {
+            otherSprite.setImage(assets.image`yourselfsing-34`)
+            pause(200)
+        }
         sprites.destroy(otherSprite)
+        scene.cameraFollowSprite(hero)
+        scene.cameraShake(4, 1000)
+        info.changeScoreBy(25)
+        tiles.placeOnRandomTile(hero, assets.tile`you0`)
+        hero.y += -75
+        if (zachisgolden == false) {
+            controller.moveSprite(hero, 110, 0)
+        }
+        if (zachisgolden == true) {
+            controller.moveSprite(hero, 210, 0)
+        }
     }
 })
 sprites.onCreated(SpriteKind.Bullet, function (sprite) {
@@ -1887,7 +2079,7 @@ scene.onHitWall(SpriteKind.GOLDENBullet, function (sprite, location) {
         sprites.destroyAllSpritesOfKind(SpriteKind.GOLDENBullet)
     }
 })
-let projectile: Sprite = null
+let rustbullet: Sprite = null
 let coin: Sprite = null
 let dash: animation.Animation = null
 let shotgunidleright: animation.Animation = null
@@ -1898,7 +2090,7 @@ let SHOTGUNCROUCH: animation.Animation = null
 let pbossrun: animation.Animation = null
 let kick: animation.Animation = null
 let SHOTGUNJUMP: animation.Animation = null
-let rustbullet: Sprite = null
+let Alex: Sprite = null
 let yourselfhp: StatusBarSprite = null
 let yourself: Sprite = null
 let movingtarget: Sprite = null
@@ -1931,9 +2123,11 @@ let mainIdleLeft: animation.Animation = null
 let heroFacingLeft = false
 let kingsquare: Sprite = null
 let statusbar: StatusBarSprite = null
+let debugmodeON = false
 let doubleJumpSpeed = 0
 let canDoubleJump = false
 let coinAnimation: animation.Animation = null
+let A: Sprite = null
 let AMMOBAR: StatusBarSprite = null
 let FUCKINGBULLET: Sprite = null
 let zachisholdingshotgun = false
@@ -2160,30 +2354,30 @@ game.onUpdate(function () {
 game.onUpdate(function () {
     for (let value14 of sprites.allOfKind(SpriteKind.NotZach)) {
         if (value14.isHittingTile(CollisionDirection.Left)) {
-            value14.vx = Math.randomRange(50, 100)
+            value14.vx = Math.randomRange(125, 200)
             value14.setImage(assets.image`yourselfright`)
         } else if (value14.isHittingTile(CollisionDirection.Right)) {
-            value14.vx = Math.randomRange(-50, 100)
+            value14.vx = Math.randomRange(-125, 200)
             value14.setImage(assets.image`yourselfleft`)
         }
     }
 })
-game.onUpdateInterval(5000, function () {
+game.onUpdateInterval(2500, function () {
     for (let value14 of sprites.allOfKind(SpriteKind.NotZach)) {
-        if (hero.isHittingTile(CollisionDirection.Bottom)) {
-            value14.vy += -50
+        if (value14.isHittingTile(CollisionDirection.Bottom)) {
+            value14.vy += -150
         }
     }
 })
 game.onUpdateInterval(1000, function () {
     for (let value14 of sprites.allOfKind(SpriteKind.NotZach)) {
-        if (value14.vx > 1) {
+        if (value14.vx > 10) {
             value14.setImage(assets.image`yourselfright`)
-            projectile = sprites.createProjectileFromSprite(assets.image`FUCKINGBULLET2`, yourself, 100, 0)
+            rustbullet = sprites.createProjectileFromSprite(assets.image`FUCKINGBULLET2`, yourself, 100, 0)
             rustbullet.setKind(SpriteKind.rustbullet)
-        } else if (value14.vx < 1) {
+        } else if (value14.vx < 10) {
             value14.setImage(assets.image`yourselfleft`)
-            projectile = sprites.createProjectileFromSprite(assets.image`YOURSELF_BULLET`, yourself, 100, 0)
+            rustbullet = sprites.createProjectileFromSprite(assets.image`YOURSELF_BULLET`, yourself, -100, 0)
             rustbullet.setKind(SpriteKind.rustbullet)
         }
     }

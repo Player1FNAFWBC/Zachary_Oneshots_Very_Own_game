@@ -8,7 +8,8 @@
         "pxt-status-bar": "github:jwunderl/pxt-status-bar#v0.4.2",
         "pxt-button-combos": "github:jwunderl/pxt-button-combos#v0.0.24",
         "pxt-zoom": "github:kiwiphoenix364/pxt-zoom#v2.0.1",
-        "arcade-minimap": "github:darzu/arcade-minimap#v0.5.1"
+        "arcade-minimap": "github:darzu/arcade-minimap#v0.5.1",
+        "ArcadeMIDI": "github:UnsignedArduino/ArcadeMIDI#af121437d59fd6b2cec54501ac437db1eaa766f5"
     },
     "files": [
         "main.blocks",
